@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Happy New Year 2026</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="stars-container" id="starsContainer"></div>
+    <canvas id="fireworks"></canvas>
+    <div class="snow-container" id="snowContainer"></div>
+    <div class="content">
+        <div class="greeting" id="greeting">
+            <h1>С Новым Годом!</h1>
+            <p class="subtitle">Welcome to</p>
+        </div>
+        <div class="year-display" id="yearDisplay">
+            <div class="year-number glow">2026</div>
+        </div>
+        <div class="countdown" id="countdown">
+            <div class="countdown-item">
+                <span class="countdown-number" id="days">00</span>
+                <span class="countdown-label">дней</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+                <span class="countdown-number" id="hours">00</span>
+                <span class="countdown-label">часов</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+                <span class="countdown-number" id="minutes">00</span>
+                <span class="countdown-label">минут</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+                <span class="countdown-number" id="seconds">00</span>
+                <span class="countdown-label">секунд</span>
+            </div>
+        </div>
+        <div class="wishes" id="wishes">
+            <p>✨ Счастья, здоровья и успехов в новом году! ✨</p>
+        </div>
+        <button class="launch-button" id="launchButton">
+            <span>🎆 Запустить фейерверк 🎆</span>
+        </button>
+    </div>
+    <script src="./script.js"></script>
+</body>
+</html>
