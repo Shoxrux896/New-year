@@ -57,66 +57,51 @@ function updateCountdown() {
     document.getElementById('hours').textContent = String(hours).padStart(2, '0');
     document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
     document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+
 }
 
 function startCelebration() {
     const countdownEl = document.getElementById('countdown');
-    countdownEl.style.transformOrigin = 'center center';
-    countdownEl.style.opacity = '0';
-    countdownEl.style.transform = 'scale(0.3)';
-    countdownEl.style.filter = 'blur(15px)';
-    countdownEl.style.transition = 'opacity 2s cubic-bezier(0.16, 1, 0.3, 1), transform 2s cubic-bezier(0.16, 1, 0.3, 1), filter 2s ease-out';
+
+    countdownEl.style.transform = 'scale(0.9) translateY(-10px)';
+
 
     setTimeout(() => {
-        countdownEl.style.height = countdownEl.offsetHeight + 'px';
+        const style = window.getComputedStyle(countdownEl);
+        const height = countdownEl.offsetHeight;
+        const margin = style.margin;
+
+
+        countdownEl.style.height = height + 'px';
+        countdownEl.style.margin = margin;
         countdownEl.style.overflow = 'hidden';
+
+
         void countdownEl.offsetHeight;
+
+        countdownEl.style.transition = 'all 1s cubic-bezier(0.4, 0, 0.2, 1)';
         countdownEl.style.height = '0';
         countdownEl.style.marginTop = '0';
         countdownEl.style.marginBottom = '0';
-        countdownEl.style.transition = 'height 1.5s cubic-bezier(0.16, 1, 0.3, 1), margin 1.5s cubic-bezier(0.16, 1, 0.3, 1)';
-    }, 2000);
+        countdownEl.style.paddingTop = '0';
+        countdownEl.style.paddingBottom = '0';
+    }, 400);
 
     setTimeout(() => {
         countdownEl.style.display = 'none';
-    }, 3500);
+    }, 1500);
 
     const wishes = document.getElementById('wishes');
     const launchButton = document.getElementById('launchButton');
-    wishes.style.animation = 'none';
-    launchButton.style.animation = 'none';
-    wishes.style.opacity = '0';
-    launchButton.style.opacity = '0';
 
     setTimeout(() => {
-        wishes.style.opacity = '1';
-        wishes.style.transition = 'opacity 2s cubic-bezier(0.16, 1, 0.3, 1)';
-    }, 2000);
-
-    setTimeout(() => {
-        launchButton.style.opacity = '1';
-        launchButton.style.transition = 'opacity 2s cubic-bezier(0.16, 1, 0.3, 1)';
-    }, 2300);
-
-    setTimeout(() => {
-        wishes.style.animation = 'float 3s ease-in-out infinite';
-    }, 4000);
+        launchCelebrationFireworks();
+    }, 800);
 
     const yearDisplay = document.getElementById('yearDisplay');
     setTimeout(() => {
         yearDisplay.style.animation = 'celebrate 2s ease-in-out infinite';
-        yearDisplay.style.transform = 'scale(1.2)';
-        yearDisplay.style.transition = 'transform 2s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    }, 1000);
-
-    const greeting = document.getElementById('greeting');
-    setTimeout(() => {
-        greeting.style.animation = 'celebrationPulse 1.5s ease-in-out infinite';
-    }, 1200);
-
-    setTimeout(() => {
-        launchCelebrationFireworks();
-    }, 1400);
+    }, 800);
 }
 
 function launchCelebrationFireworks() {
@@ -302,6 +287,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
+
+    initGifts();
+    initParallax();
+
     const launchButton = document.getElementById('launchButton');
     launchButton.addEventListener('click', () => {
         for (let i = 0; i < CONFIG.fireworksPerClick; i++) {
@@ -322,3 +311,112 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+
+
+
+function initGifts() {
+    const container = document.getElementById('giftsContainer');
+    const gifts = ['🎁', '🎁', '🎁', '🎁'];
+    const wishesList = [
+        '✨ Море любви! ✨',
+        '💰 Огромного достатка! 💰',
+        '🚀 Креативных идей! 🚀',
+        '🌈 Ярких моментов! 🌈',
+        '🍎 Крепкого здоровья! 🍎',
+        '🎮 Времени на игры! 🎮',
+        '✈️ Новых путешествий! ✈️',
+        '☀️ Ясных дней! ☀️'
+    ];
+
+    let availableWishes = [...wishesList];
+
+    function getUniqueWish() {
+        if (availableWishes.length === 0) {
+            availableWishes = [...wishesList];
+        }
+        const index = Math.floor(Math.random() * availableWishes.length);
+        const wish = availableWishes.splice(index, 1)[0];
+        return wish;
+    }
+
+    gifts.forEach(giftEmoji => {
+        const gift = document.createElement('div');
+        gift.className = 'gift';
+        gift.textContent = giftEmoji;
+
+        gift.addEventListener('click', (e) => {
+            if (gift.classList.contains('open')) return;
+
+            gift.classList.add('open');
+            showWish(e.clientX, e.clientY);
+
+
+            setTimeout(() => {
+                gift.remove();
+                addRandomGift();
+            }, 3000);
+        });
+
+        container.appendChild(gift);
+    });
+
+    function addRandomGift() {
+        const gift = document.createElement('div');
+        gift.className = 'gift';
+        gift.textContent = '🎁';
+        gift.style.opacity = '0';
+        gift.style.transition = 'opacity 1s';
+
+        gift.addEventListener('click', (e) => {
+            if (gift.classList.contains('open')) return;
+            gift.classList.add('open');
+            showWish(e.clientX, e.clientY);
+            setTimeout(() => {
+                gift.remove();
+                addRandomGift();
+            }, 3000);
+        });
+
+        container.appendChild(gift);
+        setTimeout(() => gift.style.opacity = '1', 100);
+    }
+
+    function showWish(x, y) {
+        const wish = document.createElement('div');
+        wish.className = 'wish-popup';
+        wish.textContent = getUniqueWish();
+
+
+        let left = x;
+        const screenWidth = window.innerWidth;
+        if (screenWidth < 600) {
+            left = screenWidth / 2;
+        }
+
+        wish.style.left = `${left}px`;
+        wish.style.top = `${y}px`;
+        document.body.appendChild(wish);
+
+        setTimeout(() => wish.remove(), 3000);
+    }
+}
+
+function initParallax() {
+    const content = document.querySelector('.content');
+    const snow = document.getElementById('snowContainer');
+    let ticking = false;
+
+    document.addEventListener('mousemove', (e) => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const x = (e.clientX / window.innerWidth - 0.5) * 20;
+                const y = (e.clientY / window.innerHeight - 0.5) * 20;
+
+                if (content) content.style.transform = `translate(${x}px, ${y}px)`;
+                if (snow) snow.style.transform = `translate(${x * 0.5}px, ${y * 0.5}px)`;
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+}
