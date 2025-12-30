@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next"
 const CONFIG = {
     stars: 100,
     snowflakes: 30,
