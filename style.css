@@ -738,11 +738,6 @@ body {
     to { opacity: 1; filter: drop-shadow(0 0 15px #fff); }
 }
 
-@keyframes garlandGlow {
-    from { opacity: 0.6; filter: drop-shadow(0 0 5px #fff); }
-    to { opacity: 1; filter: drop-shadow(0 0 15px #fff); }
-}
-
 
 .gifts-container {
     position: fixed;
