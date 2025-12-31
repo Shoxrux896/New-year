@@ -316,31 +316,7 @@ body {
     animation: fadeInUp 2s ease-out 2s backwards;
 }
 
-.share-button {
-    padding: 10px 25px;
-    font-size: clamp(0.8rem, 1.2vw, 0.9rem);
-    font-weight: 700;
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-}
 
-.share-button:hover {
-    transform: translateY(-5px) scale(1.05);
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 15px 60px rgba(255, 255, 255, 0.1);
-}
-
-.share-button:active {
-    transform: translateY(-2px) scale(1.02);
-}
 
 /* High intensity mode for the last minute */
 .last-minute {

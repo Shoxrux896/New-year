@@ -310,34 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const shareButton = document.getElementById('shareButton');
-    if (shareButton) {
-        shareButton.addEventListener('click', async () => {
-            const shareData = {
-                title: 'Новый Год 2026',
-                text: 'Посмотри, какой крутой отсчет до Нового Года 2026! 🎆✨',
-                url: window.location.href
-            };
-
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else {
-                    await navigator.clipboard.writeText(window.location.href);
-                    const originalText = shareButton.innerHTML;
-                    shareButton.innerHTML = '<span>✅ Ссылка скопирована!</span>';
-                    setTimeout(() => {
-                        shareButton.innerHTML = originalText;
-                    }, 2000);
-                }
-            } catch (err) {
-                console.error('Ошибка шаринга:', err);
-            }
-        });
-    }
-
     document.addEventListener('click', (e) => {
-        if (e.target !== launchButton && !shareButton.contains(e.target)) {
+        if (e.target !== launchButton) {
             fireworksManager.launch(e.clientX, e.clientY);
         }
     });
