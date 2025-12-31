@@ -2,7 +2,7 @@ const CONFIG = {
     stars: 100,
     snowflakes: 30,
     fireworksPerClick: 5,
-    targetDate: new Date('2026-01-01T00:00:00').getTime(), // Reset to real date for optimization demo
+    targetDate: new Date('2026-01-01T00:00:00').getTime(),
 };
 
 /**
@@ -12,10 +12,10 @@ const CONFIG = {
 class CoreEngine {
     constructor() {
         this.updatables = new Set();
-        this.mouseX = -1000;
-        this.mouseY = -1000;
         this.width = window.innerWidth;
         this.height = window.innerHeight;
+        this.mouseX = this.width / 2;
+        this.mouseY = this.height / 2;
 
         this.initListeners();
         this.start();
@@ -25,20 +25,20 @@ class CoreEngine {
         window.addEventListener('resize', () => {
             this.width = window.innerWidth;
             this.height = window.innerHeight;
-        });
+        }, { passive: true });
 
         const updateMouse = (e) => {
             this.mouseX = e.clientX;
             this.mouseY = e.clientY;
         };
 
-        document.addEventListener('mousemove', updateMouse);
+        document.addEventListener('mousemove', updateMouse, { passive: true });
         document.addEventListener('touchstart', (e) => {
             if (e.touches.length > 0) {
                 this.mouseX = e.touches[0].clientX;
                 this.mouseY = e.touches[0].clientY;
             }
-        });
+        }, { passive: true });
     }
 
     register(obj) {
@@ -115,8 +115,8 @@ class Snowflake {
     reset() {
         this.x = Math.random() * engine.width;
         this.y = -20 - Math.random() * 100;
-        this.vx = (Math.random() - 0.5) * 1;
-        this.vy = 1 + Math.random() * 2;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = 0.3 + Math.random() * 0.7; // Ultra-slow snow
         this.rotation = Math.random() * 360;
         this.rotationSpeed = (Math.random() - 0.5) * 2;
         this.size = 0.5 + Math.random() * 1.5;
@@ -203,7 +203,7 @@ class Firework {
         this.ctx = ctx;
         this.particles = [];
         const hue = Math.random() * 360;
-        const count = 50 + Math.floor(Math.random() * 30);
+        const count = 70 + Math.floor(Math.random() * 40); // Increased particle count
 
         for (let i = 0; i < count; i++) {
             this.particles.push(new Particle(this.ctx, x, y, hue));
@@ -218,7 +218,11 @@ class Firework {
     }
 
     draw() {
-        this.particles.forEach(p => p.draw());
+        this.ctx.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < this.particles.length; i++) {
+            this.particles[i].draw();
+        }
+        this.ctx.globalCompositeOperation = 'source-over';
     }
 }
 
@@ -229,12 +233,12 @@ class Particle {
         this.y = y;
         this.hue = hue + (Math.random() * 40 - 20);
         this.angle = Math.random() * Math.PI * 2;
-        this.speed = Math.random() * 8 + 1;
+        this.speed = Math.random() * 1.2 + 0.3; // Ultra-slow graceful motion
         this.friction = 0.96;
         this.gravity = 0.12;
         this.alpha = 1;
-        this.decay = Math.random() * 0.02 + 0.015;
-        this.size = Math.random() * 1.2 + 0.5; // Smaller particles
+        this.decay = Math.random() * 0.01 + 0.01;
+        this.size = Math.random() * 2.5 + 1.0; // Bigger particles
         this.twinkle = Math.random() > 0.7;
     }
 
@@ -246,20 +250,11 @@ class Particle {
     }
 
     draw() {
-        this.ctx.save();
-        this.ctx.globalCompositeOperation = 'lighter';
         this.ctx.beginPath();
         this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-
         const b = this.twinkle && Math.random() > 0.5 ? 95 : 65;
         this.ctx.fillStyle = `hsla(${this.hue}, 100%, ${b}%, ${this.alpha})`;
-
-        // Premium glow effect
-        this.ctx.shadowBlur = 4;
-        this.ctx.shadowColor = `hsla(${this.hue}, 100%, 65%, ${this.alpha * 0.5})`;
-
         this.ctx.fill();
-        this.ctx.restore();
     }
 }
 
@@ -315,10 +310,17 @@ class ParallaxManager {
     }
 
     update(mouseX, mouseY) {
-        const x = (mouseX / engine.width - 0.5) * 15;
-        const y = (mouseY / engine.height - 0.5) * 15;
-        if (this.content) this.content.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-        if (this.snow) this.snow.style.transform = `translate3d(${x * 0.4}px, ${y * 0.4}px, 0)`;
+        // Stabilize mouse coordinates (don't shift if very close to center)
+        const x = ((mouseX / engine.width) - 0.5) * 15;
+        const y = ((mouseY / engine.height) - 0.5) * 15;
+
+        if (this.content) {
+            // Apply transform to parent content to keep alignment stable
+            this.content.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        }
+        if (this.snow) {
+            this.snow.style.transform = `translate3d(${x * 0.4}px, ${y * 0.4}px, 0)`;
+        }
     }
 }
 
@@ -329,7 +331,12 @@ function updateCountdown() {
     const now = Date.now();
     const distance = CONFIG.targetDate - now;
 
-    if (distance < 0) {
+    if (distance <= 0) {
+        document.getElementById('days').textContent = '00';
+        document.getElementById('hours').textContent = '00';
+        document.getElementById('minutes').textContent = '00';
+        document.getElementById('seconds').textContent = '00';
+
         if (!celebrationStarted) {
             celebrationStarted = true;
             startCelebration();
@@ -353,10 +360,12 @@ function updateCountdown() {
 function startCelebration() {
     const countdownEl = document.getElementById('countdown');
     if (countdownEl) {
-        countdownEl.style.transition = 'all 0.8s ease-out';
+        countdownEl.style.maxHeight = '0';
         countdownEl.style.opacity = '0';
-        countdownEl.style.transform = 'scale(0.9) translateY(-20px)';
-        setTimeout(() => countdownEl.style.display = 'none', 800);
+        countdownEl.style.margin = '0';
+        countdownEl.style.padding = '0';
+        countdownEl.style.transform = 'scale(0.95) translateY(-10px)';
+        setTimeout(() => countdownEl.style.display = 'none', 1000);
     }
 
     setTimeout(() => {
