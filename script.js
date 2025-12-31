@@ -2,7 +2,7 @@ const CONFIG = {
     stars: 100,
     snowflakes: 30,
     fireworksPerClick: 5,
-    targetDate: new Date('2026-01-01T00:00:00').getTime(),
+    targetDate: Date.now() + 20000, // Demo mode: 20s countdown
 };
 
 /**
@@ -355,17 +355,42 @@ function updateCountdown() {
         const el = document.getElementById(key);
         if (el) el.textContent = String(t[key]).padStart(2, '0');
     });
+
+    const countdownEl = document.getElementById('countdown');
+    if (countdownEl) {
+        if (distance < 10000 && distance > 0) {
+            countdownEl.classList.add('critical');
+            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
+        } else {
+            countdownEl.classList.remove('critical');
+        }
+    }
 }
 
 function startCelebration() {
+    // Trigger Flash and Shake
+    const flash = document.createElement('div');
+    flash.className = 'flash-overlay active';
+    document.body.appendChild(flash);
+    document.body.classList.add('shake');
+
+    // Vibrate device
+    if (window.navigator && window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+
     const countdownEl = document.getElementById('countdown');
     if (countdownEl) {
+        countdownEl.classList.remove('critical');
         countdownEl.style.maxHeight = '0';
         countdownEl.style.opacity = '0';
         countdownEl.style.margin = '0';
         countdownEl.style.padding = '0';
         countdownEl.style.transform = 'scale(0.95) translateY(-10px)';
         setTimeout(() => countdownEl.style.display = 'none', 1000);
+    }
+
+    // Instant Mega Barrage
+    for (let i = 0; i < 20; i++) {
+        fireworksManager.launchRandom();
     }
 
     setTimeout(() => {

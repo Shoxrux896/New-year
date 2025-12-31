@@ -202,7 +202,8 @@ body {
 }
 
 .countdown-item {
-    background: rgba(255, 255, 255, 0.03);
+    /* background: rgba(255, 255, 255, 0.03); Removed per user request */
+    background: transparent;
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
@@ -245,14 +246,11 @@ body {
     font-size: clamp(1.6rem, 4vw, 2.5rem);
     font-weight: 900;
     font-family: 'Raleway', sans-serif;
-    background: linear-gradient(135deg, #ffd700 0%, #fff 50%, #ff8c00 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffd700;
     line-height: 1;
     margin-bottom: 8px;
     letter-spacing: 2px;
-    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
 }
 
 .countdown-label {
@@ -905,3 +903,59 @@ body {
     opacity: 0.3;
 }
 
+
+/* Atmospheric Climax Styles */
+
+/* Flash Overlay */
+.flash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.flash-overlay.active {
+    animation: flash 1.5s ease-out forwards;
+}
+
+@keyframes flash {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Screen Shake */
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Critical Countdown Selection */
+.countdown.critical .countdown-item {
+    border-color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.15);
+    box-shadow: 0 0 30px rgba(255, 77, 77, 0.4);
+    animation: criticalPulse 0.5s ease-in-out infinite alternate;
+}
+
+.countdown.critical .countdown-number {
+    color: #ff4d4d;
+    text-shadow: 0 0 20px #ff4d4d;
+    background: none;
+    -webkit-text-fill-color: #ff4d4d;
+}
+
+@keyframes criticalPulse {
+    0% { transform: scale(1); box-shadow: 0 0 30px rgba(255, 77, 77, 0.4); }
+    100% { transform: scale(1.05); box-shadow: 0 0 60px rgba(255, 77, 77, 0.8), inset 0 0 20px rgba(255, 77, 77, 0.2); }
+}
