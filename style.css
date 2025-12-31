@@ -636,12 +636,29 @@ body {
     }
 
     .wish-popup {
-        padding: 10px 15px;
+        padding: 6px 14px;
         font-size: 0.8rem;
         width: auto;
-        max-width: 250px;
-        white-space: nowrap;
+        min-width: 150px;
+        max-width: 70%;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        animation: wishAppearBottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
+}
+
+@keyframes wishAppearBottom {
+    from { opacity: 0; transform: translate(-50%, 20px) scale(0.8); }
+    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+.wish-popup.fade-out {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.9);
+    transition: all 0.5s ease;
 }
 
 @media (max-width: 360px) {

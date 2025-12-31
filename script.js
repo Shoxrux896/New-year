@@ -203,41 +203,63 @@ class Firework {
         this.ctx = ctx;
         this.particles = [];
         const hue = Math.random() * 360;
+        const count = 50 + Math.floor(Math.random() * 30);
 
-        for (let i = 0; i < 60; i++) {
-            this.particles.push({
-                x: x,
-                y: y,
-                vx: (Math.random() - 0.5) * 12,
-                vy: (Math.random() - 0.5) * 12,
-                life: 100,
-                hue: hue + Math.random() * 40
-            });
+        for (let i = 0; i < count; i++) {
+            this.particles.push(new Particle(this.ctx, x, y, hue));
         }
     }
 
     update() {
-        for (let i = 0; i < this.particles.length; i++) {
-            const p = this.particles[i];
-            p.x += p.vx;
-            p.y += p.vy;
-            p.vy += 0.15;
-            p.life -= 1.8;
-            p.vx *= 0.97;
-            p.vy *= 0.97;
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            this.particles[i].update();
+            if (this.particles[i].alpha <= 0) this.particles.splice(i, 1);
         }
-        this.particles = this.particles.filter(p => p.life > 0);
     }
 
     draw() {
-        for (let i = 0; i < this.particles.length; i++) {
-            const p = this.particles[i];
-            const alpha = p.life / 100;
-            this.ctx.fillStyle = `hsla(${p.hue}, 100%, 65%, ${alpha})`;
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
+        this.particles.forEach(p => p.draw());
+    }
+}
+
+class Particle {
+    constructor(ctx, x, y, hue) {
+        this.ctx = ctx;
+        this.x = x;
+        this.y = y;
+        this.hue = hue + (Math.random() * 40 - 20);
+        this.angle = Math.random() * Math.PI * 2;
+        this.speed = Math.random() * 8 + 1;
+        this.friction = 0.96;
+        this.gravity = 0.12;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.02 + 0.015;
+        this.size = Math.random() * 1.2 + 0.5; // Smaller particles
+        this.twinkle = Math.random() > 0.7;
+    }
+
+    update() {
+        this.speed *= this.friction;
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed + this.gravity;
+        this.alpha -= this.decay;
+    }
+
+    draw() {
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = 'lighter';
+        this.ctx.beginPath();
+        this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+
+        const b = this.twinkle && Math.random() > 0.5 ? 95 : 65;
+        this.ctx.fillStyle = `hsla(${this.hue}, 100%, ${b}%, ${this.alpha})`;
+
+        // Premium glow effect
+        this.ctx.shadowBlur = 4;
+        this.ctx.shadowColor = `hsla(${this.hue}, 100%, 65%, ${this.alpha * 0.5})`;
+
+        this.ctx.fill();
+        this.ctx.restore();
     }
 }
 
@@ -247,7 +269,20 @@ class FireworksManager {
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d', { alpha: true });
         this.fireworks = [];
+        this.dpr = window.devicePixelRatio || 1;
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
         engine.register(this);
+    }
+
+    resize() {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width * this.dpr;
+        this.canvas.height = this.height * this.dpr;
+        this.canvas.style.width = `${this.width}px`;
+        this.canvas.style.height = `${this.height}px`;
+        this.ctx.scale(this.dpr, this.dpr);
     }
 
     launch(x, y) {
@@ -255,23 +290,19 @@ class FireworksManager {
     }
 
     launchRandom() {
-        this.launch(Math.random() * engine.width, Math.random() * engine.height * 0.4);
+        this.launch(Math.random() * this.width, Math.random() * this.height * 0.4);
     }
 
     update() {
-        if (this.fireworks.length === 0) {
-            this.ctx.clearRect(0, 0, engine.width, engine.height);
-            return;
-        }
-
-        this.ctx.fillStyle = 'rgba(10, 14, 39, 0.25)';
-        this.ctx.fillRect(0, 0, engine.width, engine.height);
+        this.ctx.globalCompositeOperation = 'destination-out';
+        this.ctx.fillStyle = 'rgba(10, 14, 39, 0.4)';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+        this.ctx.globalCompositeOperation = 'source-over';
 
         for (let i = this.fireworks.length - 1; i >= 0; i--) {
-            const fw = this.fireworks[i];
-            fw.update();
-            fw.draw();
-            if (fw.particles.length === 0) this.fireworks.splice(i, 1);
+            this.fireworks[i].update();
+            this.fireworks[i].draw();
+            if (this.fireworks[i].particles.length === 0) this.fireworks.splice(i, 1);
         }
     }
 }
@@ -380,7 +411,18 @@ function initGifts() {
     const container = document.getElementById('giftsContainer');
     if (!container) return;
 
-    const wishes = ['✨ Любовь! ✨', '💰 Достаток! 💰', '🚀 Идеи! 🚀', '🌈 Яркость! 🌈', '🍎 Здоровье! 🍎', '✈️ Путешествия! ✈️'];
+    const wishes = [
+        '✨ Любовь и гармония',
+        '💰 Изобилие и достаток',
+        '🚀 Вдохновение и идеи',
+        '🌈 Радостные моменты',
+        '🍎 Крепкое здоровье',
+        '✈️ Новые открытия',
+        '🍀 Мир и спокойствие',
+        '🏡 Уют и душевное тепло'
+    ];
+
+    let availableWishes = [...wishes];
 
     const createGift = () => {
         const gift = document.createElement('div');
@@ -390,18 +432,33 @@ function initGifts() {
             if (gift.classList.contains('open')) return;
             gift.classList.add('open');
 
+            if (availableWishes.length === 0) {
+                availableWishes = [...wishes];
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableWishes.length);
+            const chosenWish = availableWishes.splice(randomIndex, 1)[0];
+
             const popup = document.createElement('div');
             popup.className = 'wish-popup';
-            popup.textContent = wishes[Math.floor(Math.random() * wishes.length)];
-            popup.style.left = `${e.clientX}px`;
-            popup.style.top = `${e.clientY}px`;
+            popup.textContent = chosenWish;
+
+            // Unified positioning at the bottom for all devices
+            popup.style.left = '50%';
+            popup.style.bottom = '20px';
+            popup.style.top = 'auto';
+            popup.style.transform = 'translateX(-50%) scale(0)';
+
             document.body.appendChild(popup);
 
             setTimeout(() => {
-                popup.remove();
-                gift.remove();
-                createGift();
-            }, 2500);
+                popup.classList.add('fade-out');
+                setTimeout(() => {
+                    popup.remove();
+                    gift.remove();
+                    createGift();
+                }, 500);
+            }, 3000);
         });
         container.appendChild(gift);
     };
